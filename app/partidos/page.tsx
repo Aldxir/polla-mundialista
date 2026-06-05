@@ -13,7 +13,8 @@ export default async function PartidosPage() {
 
   // Ventana: desde ahora, hasta 7 días en el futuro
   const ahora = new Date()
-  const enUnaSemana = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000)
+  const enUnaSemana = new Date(ahora.getTime() + 14 * 24 * 60 * 60 * 1000)
+//                                              
 
   const { data: partidos } = await supabase
     .from('partidos')
