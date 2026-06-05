@@ -13,7 +13,7 @@ export default async function PartidosPage() {
 
   // Ventana: desde ahora, hasta 7 días en el futuro
   const ahora = new Date()
-  const enUnaSemana = new Date(ahora.getTime() + 14 * 24 * 60 * 60 * 1000)
+  const enUnaSemana = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000)
 //                                              
 
   const { data: partidos } = await supabase
@@ -52,21 +52,24 @@ export default async function PartidosPage() {
             </div>
           </div>
           <nav className="flex gap-2">
-            {isAdmin && (
-              <a href="/admin" className="flex items-center gap-1.5 px-3 py-2 bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 rounded-xl text-sm font-medium transition">
-                <Shield className="w-4 h-4" />
-                Admin
-              </a>
-            )}
-            <a href="/tabla" className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
-              Tabla
-            </a>
-            <form action="/auth/signout" method="post">
-              <button className="flex items-center gap-1.5 px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
-                <LogOut className="w-4 h-4" />
-              </button>
-            </form>
-          </nav>
+  {isAdmin && (
+    <a href="/admin" className="flex items-center gap-1.5 px-3 py-2 bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 rounded-xl text-sm font-medium transition">
+      <Shield className="w-4 h-4" />
+      Admin
+    </a>
+  )}
+  <a href="/mis-pronosticos" className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
+    Mis pronósticos
+  </a>
+  <a href="/tabla" className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
+    Tabla
+  </a>
+  <form action="/auth/signout" method="post">
+    <button className="flex items-center gap-1.5 px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
+      <LogOut className="w-4 h-4" />
+    </button>
+  </form>
+</nav>
         </header>
 
         <div className="flex items-center justify-between text-xs text-emerald-200/60">

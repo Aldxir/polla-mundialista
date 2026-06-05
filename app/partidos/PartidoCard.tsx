@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { guardarPronostico } from './actions'
 import { getTeamFlag, getPhaseStyles } from '@/lib/teams'
-import { Check, Clock } from 'lucide-react'
+import { getCountdown } from '@/lib/countdown'
+import { Check, Clock, Zap } from 'lucide-react'
 
 type Partido = {
   id: number
@@ -36,11 +37,20 @@ export default function PartidoCard({
   const [pending, startTransition] = useTransition()
 
   const fecha = new Date(partido.fecha_partido)
+  const [countdown, setCountdown] = useState(() => getCountdown(fecha))
+
+  // Actualizar el countdown cada 30 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCountdown(getCountdown(fecha))
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [fecha])
+
+  const fase = getPhaseStyles(partido.fase)
   const fechaFormateada = fecha.toLocaleString('es-EC', {
     weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
   })
-  const yaEmpezo = fecha <= new Date()
-  const fase = getPhaseStyles(partido.fase)
 
   const handleSubmit = () => {
     setMensaje(null)
@@ -60,14 +70,22 @@ export default function PartidoCard({
         ? 'border-amber-500/30 shadow-[0_0_30px_rgba(251,191,36,0.06)]'
         : 'border-emerald-800/50'
     }`}>
-      <div className="flex items-center justify-between mb-4">
-        <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md border ${fase.bg} ${fase.text} ${fase.border}`}>
-          {partido.fase}
-        </span>
-        <span className="text-xs text-emerald-200/60 flex items-center gap-1.5">
-          <Clock className="w-3 h-3" />
-          {fechaFormateada}
-        </span>
+      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md border ${fase.bg} ${fase.text} ${fase.border}`}>
+            {partido.fase}
+          </span>
+          {/* Countdown destacado */}
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-md border flex items-center gap-1.5 ${
+            countdown.urgente
+              ? 'bg-red-500/15 text-red-300 border-red-500/30 pulse-live'
+              : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+          }`}>
+            {countdown.urgente ? <Zap className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+            {countdown.texto}
+          </span>
+        </div>
+        <span className="text-xs text-emerald-200/60">{fechaFormateada}</span>
       </div>
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
@@ -80,14 +98,14 @@ export default function PartidoCard({
           <input
             type="number" min={0} max={20} value={golesA}
             onChange={e => setGolesA(Math.max(0, parseInt(e.target.value) || 0))}
-            disabled={yaEmpezo || pending}
+            disabled={countdown.yaEmpezo || pending}
             className="w-14 h-14 text-center text-2xl font-bold bg-emerald-950/60 border-2 border-emerald-700/50 text-white rounded-xl focus:border-amber-400 focus:outline-none disabled:bg-emerald-950/30 disabled:text-emerald-300/50"
           />
           <span className="text-emerald-400 font-bold text-xl">–</span>
           <input
             type="number" min={0} max={20} value={golesB}
             onChange={e => setGolesB(Math.max(0, parseInt(e.target.value) || 0))}
-            disabled={yaEmpezo || pending}
+            disabled={countdown.yaEmpezo || pending}
             className="w-14 h-14 text-center text-2xl font-bold bg-emerald-950/60 border-2 border-emerald-700/50 text-white rounded-xl focus:border-amber-400 focus:outline-none disabled:bg-emerald-950/30 disabled:text-emerald-300/50"
           />
         </div>
@@ -120,7 +138,7 @@ export default function PartidoCard({
 
         <button
           onClick={handleSubmit}
-          disabled={yaEmpezo || pending}
+          disabled={countdown.yaEmpezo || pending}
           className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 disabled:bg-slate-600 disabled:text-slate-400 text-emerald-950 font-bold rounded-xl text-sm transition shadow-lg shadow-amber-500/20"
         >
           {pending ? 'Guardando...' : pronosticoExistente ? 'Actualizar' : 'Pronosticar'}
