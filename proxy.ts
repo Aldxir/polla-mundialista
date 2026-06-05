@@ -42,7 +42,7 @@ export async function proxy(request: NextRequest) {
     const { data: perfil } = await supabase
       .from("usuarios_posiciones")
       .select("aprobado, es_admin")
-      .eq("user_id", user.id)
+      .eq("correo_institucional", user.email)
       .single();
 
     if (!perfil || !perfil.aprobado) {
