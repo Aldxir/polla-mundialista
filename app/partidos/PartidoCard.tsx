@@ -100,9 +100,10 @@ export default function PartidoCard({
         </div>
 
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-          <div className="flex items-center justify-end gap-2.5">
+          {/* EQUIPO A */}
+          <div className="flex flex-col items-center justify-center gap-1">
+            <p className="font-semibold text-white text-base md:text-lg text-center">{partido.equipo_a}</p>
             <span className="text-3xl md:text-4xl leading-none">{getTeamFlag(partido.equipo_a)}</span>
-            <p className="font-semibold text-white text-base md:text-lg text-right">{partido.equipo_a}</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -121,8 +122,9 @@ export default function PartidoCard({
             />
           </div>
 
-          <div className="flex items-center justify-start gap-2.5">
-            <p className="font-semibold text-white text-base md:text-lg">{partido.equipo_b}</p>
+          {/* EQUIPO B */}
+          <div className="flex flex-col items-center justify-center gap-1">
+            <p className="font-semibold text-white text-base md:text-lg text-center">{partido.equipo_b}</p>
             <span className="text-3xl md:text-4xl leading-none">{getTeamFlag(partido.equipo_b)}</span>
           </div>
         </div>
