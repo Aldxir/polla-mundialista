@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/auth/admin'
-import { Trophy, LogOut, Shield, HelpCircle } from 'lucide-react'
+import { Trophy, LogOut, Shield, HelpCircle, Flame } from 'lucide-react'
 import PartidoCard from './PartidoCard'
 import BotonCompartir from './BotonCompartir'
+import CuentaRegresivaMundial from '@/components/CuentaRegresivaMundial'
 
 export default async function PartidosPage() {
   const supabase = await createClient()
@@ -12,7 +13,6 @@ export default async function PartidosPage() {
 
   const { isAdmin } = await requireAdmin()
 
-  // Ventana: desde ahora, hasta 7 días en el futuro
   const ahora = new Date()
   const enUnaSemana = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000)
 
@@ -40,15 +40,24 @@ export default async function PartidosPage() {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Banderines decorativos arriba */}
+        <div className="bunting-flags" />
+
         <header className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center">
-              <Trophy className="w-6 h-6 text-amber-400" strokeWidth={1.5} />
+            <div className="relative">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/10 border-2 border-amber-400/40 flex items-center justify-center pulse-glow">
+                <Trophy className="w-7 h-7 text-amber-400 float-trophy" strokeWidth={1.5} />
+              </div>
             </div>
             <div>
-              <h1 className="font-display text-3xl text-white tracking-wide">PRONÓSTICOS</h1>
-              <p className="text-emerald-200/70 text-sm">Hola, {nombreUsuario}</p>
+              <h1 className="font-display text-3xl md:text-4xl text-gold-gradient tracking-wide">
+                POLLA MUNDIALISTA
+              </h1>
+              <p className="text-emerald-200/70 text-xs md:text-sm">
+                <Flame className="w-3 h-3 inline text-amber-400" /> Hola, {nombreUsuario}
+              </p>
             </div>
           </div>
 
@@ -60,7 +69,7 @@ export default async function PartidosPage() {
               </a>
             )}
             <BotonCompartir />
-            <a href="/como-funciona" className="flex items-center gap-1.5 px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition" title="Reglas de la polla">
+            <a href="/como-funciona" className="flex items-center gap-1.5 px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition" title="Reglas">
               <HelpCircle className="w-4 h-4" />
             </a>
             <a href="/mis-pronosticos" className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
@@ -77,9 +86,15 @@ export default async function PartidosPage() {
           </nav>
         </header>
 
-        <div className="flex items-center justify-between text-xs text-emerald-200/60">
-          <span>Partidos hasta el {rangoHasta}</span>
-          <span>{partidos?.length ?? 0} disponibles</span>
+        {/* Cuenta regresiva épica al Mundial */}
+        <CuentaRegresivaMundial />
+
+        <div className="flex items-center justify-between text-xs text-emerald-200/60 pt-2">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400 pulse-live" />
+            Partidos hasta el {rangoHasta}
+          </span>
+          <span className="font-bold text-amber-300">{partidos?.length ?? 0} disponibles</span>
         </div>
 
         {!partidos || partidos.length === 0 ? (
@@ -100,6 +115,9 @@ export default async function PartidosPage() {
             ))}
           </div>
         )}
+
+        {/* Banderines decorativos abajo */}
+        <div className="bunting-flags" />
       </div>
     </div>
   )

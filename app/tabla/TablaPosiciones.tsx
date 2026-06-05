@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Radio } from 'lucide-react'
+import confetti from 'canvas-confetti'
 
 type Posicion = {
   id: number
@@ -25,41 +26,61 @@ export default function TablaPosiciones({
   const [conectado, setConectado] = useState(false)
 
   useEffect(() => {
-    const supabase = createClient()
+  const supabase = createClient()
 
-    const channel = supabase
-      .channel('posiciones-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'usuarios_posiciones' },
-        (payload) => {
-          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
-            const nueva = payload.new as Posicion
-            setPosiciones((prev) => {
-              const sinEsta = prev.filter((p) => p.id !== nueva.id)
-              const actualizada = [...sinEsta, nueva].sort((a, b) => {
-                if (b.puntaje_total !== a.puntaje_total) return b.puntaje_total - a.puntaje_total
-                return b.aciertos_exactos - a.aciertos_exactos
-              })
-              return actualizada
+  const channel = supabase
+    .channel('posiciones-changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'usuarios_posiciones' },
+      (payload) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+          const nueva = payload.new as Posicion
+          const anterior = payload.old as Posicion | undefined
+
+          setPosiciones((prev) => {
+            const sinEsta = prev.filter((p) => p.id !== nueva.id)
+            const actualizada = [...sinEsta, nueva].sort((a, b) => {
+              if (b.puntaje_total !== a.puntaje_total) return b.puntaje_total - a.puntaje_total
+              return b.aciertos_exactos - a.aciertos_exactos
             })
-            // Resaltar la fila actualizada por 2 segundos
-            setFilaActualizada(nueva.id)
-            setTimeout(() => setFilaActualizada(null), 2000)
-          } else if (payload.eventType === 'DELETE') {
-            const id = (payload.old as Posicion).id
-            setPosiciones((prev) => prev.filter((p) => p.id !== id))
-          }
-        }
-      )
-      .subscribe((status) => {
-        setConectado(status === 'SUBSCRIBED')
-      })
+            return actualizada
+          })
 
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [])
+          setFilaActualizada(nueva.id)
+          setTimeout(() => setFilaActualizada(null), 2000)
+
+          // Si soy yo el que ganó puntos, ¡confeti!
+          if (nueva.correo_institucional === userEmail &&
+              anterior?.puntaje_total !== undefined &&
+              nueva.puntaje_total > anterior.puntaje_total) {
+            const diff = nueva.puntaje_total - anterior.puntaje_total
+            const colors = diff >= 3
+              ? ['#fbbf24', '#f59e0b', '#fde68a']  // dorado para acierto exacto
+              : ['#10b981', '#34d399', '#6ee7b7'] // verde para tendencia
+
+            confetti({
+              particleCount: diff >= 3 ? 150 : 50,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors,
+              zIndex: 9999,
+            })
+          }
+        } else if (payload.eventType === 'DELETE') {
+          const id = (payload.old as Posicion).id
+          setPosiciones((prev) => prev.filter((p) => p.id !== id))
+        }
+      }
+    )
+    .subscribe((status) => {
+      setConectado(status === 'SUBSCRIBED')
+    })
+
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}, [userEmail])
 
   const medalla = (idx: number) => {
     if (idx === 0) return { color: 'text-amber-400', icon: '🥇' }
