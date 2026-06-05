@@ -11,10 +11,16 @@ export default async function PartidosPage() {
 
   const { isAdmin } = await requireAdmin()
 
+  // Ventana: desde ahora, hasta 7 días en el futuro
+  const ahora = new Date()
+  const enUnaSemana = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000)
+
   const { data: partidos } = await supabase
     .from('partidos')
     .select('*')
     .eq('estado', 'Pendiente')
+    .gt('fecha_partido', ahora.toISOString())       // solo futuros
+    .lt('fecha_partido', enUnaSemana.toISOString()) // dentro de 7 días
     .order('fecha_partido', { ascending: true })
 
   const { data: misPronosticos } = await supabase
@@ -27,6 +33,9 @@ export default async function PartidosPage() {
   )
 
   const nombreUsuario = user.user_metadata.full_name?.split(' ')[0] ?? user.email
+  const rangoHasta = enUnaSemana.toLocaleDateString('es-EC', {
+    day: 'numeric', month: 'long',
+  })
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -59,9 +68,15 @@ export default async function PartidosPage() {
           </nav>
         </header>
 
+        <div className="flex items-center justify-between text-xs text-emerald-200/60">
+          <span>Partidos hasta el {rangoHasta}</span>
+          <span>{partidos?.length ?? 0} disponibles</span>
+        </div>
+
         {!partidos || partidos.length === 0 ? (
-          <div className="bg-emerald-950/40 backdrop-blur border border-emerald-800/50 rounded-2xl p-12 text-center">
-            <p className="text-emerald-200/70">No hay partidos disponibles por ahora.</p>
+          <div className="bg-emerald-950/40 backdrop-blur border border-emerald-800/50 rounded-2xl p-12 text-center space-y-2">
+            <p className="text-emerald-200/70">No hay partidos para pronosticar esta semana.</p>
+            <p className="text-emerald-200/50 text-sm">Vuelve más adelante o revisa la tabla de posiciones.</p>
           </div>
         ) : (
           <div className="space-y-3">
