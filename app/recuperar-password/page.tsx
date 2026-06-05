@@ -1,31 +1,11 @@
-'use client'
-
-import { createClient } from '@/lib/supabase/client'
-import { Trophy, ArrowLeft, Mail } from 'lucide-react'
-import { useState } from 'react'
+import { Trophy, ArrowLeft, MessageCircle, Phone } from 'lucide-react'
 
 export default function RecuperarPasswordPage() {
-  const [email, setEmail] = useState('')
-  const [enviado, setEnviado] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    })
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-    } else {
-      setEnviado(true)
-      setLoading(false)
-    }
-  }
+  const whatsappNumber = '593995549223' // +593 sin el 0 inicial
+  const whatsappMensaje = encodeURIComponent(
+    'Hola Aldair, olvidé mi contraseña de la Polla Mundialista. Mi email registrado es: '
+  )
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMensaje}`
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
@@ -37,51 +17,59 @@ export default function RecuperarPasswordPage() {
         </div>
 
         <div className="bg-emerald-950/40 backdrop-blur-xl border border-emerald-800/50 rounded-3xl p-8 space-y-6 shadow-2xl">
-          {!enviado ? (
-            <>
-              <div className="text-center space-y-2">
-                <h1 className="font-display text-4xl text-white">RECUPERAR ACCESO</h1>
-                <p className="text-emerald-200/70 text-sm">
-                  Te enviaremos un link para resetear tu contraseña.
-                </p>
+          <div className="text-center space-y-2">
+            <h1 className="font-display text-4xl text-white gold-glow">
+              RECUPERAR ACCESO
+            </h1>
+            <p className="text-emerald-200/70 text-sm">
+              Comunícate con los organizadores para restablecer tu contraseña.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Organizador 1 - Aldair */}
+            <div className="bg-emerald-900/30 border border-emerald-700/50 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-emerald-200/60 uppercase tracking-wider">Organizador</p>
+                  <p className="font-display text-2xl text-white">ALDAIR PORTILLA</p>
+                </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <input
-                  type="email"
-                  placeholder="Tu email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-3 bg-emerald-950/60 border border-emerald-700/50 text-white placeholder-emerald-200/40 rounded-xl focus:border-amber-400 focus:outline-none"
-                />
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold rounded-xl px-4 py-3 transition shadow-lg shadow-emerald-500/20"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Escribir por WhatsApp
+              </a>
 
-                {error && (
-                  <p className="text-xs text-red-300 bg-red-500/10 border border-red-500/20 px-3 py-2 rounded-md">
-                    {error}
-                  </p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full px-4 py-3 bg-amber-400 hover:bg-amber-300 disabled:bg-slate-600 text-emerald-950 font-bold rounded-xl transition"
-                >
-                  {loading ? 'Enviando...' : 'Enviar link'}
-                </button>
-              </form>
-            </>
-          ) : (
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 flex items-center justify-center">
-                <Mail className="w-8 h-8 text-emerald-400" strokeWidth={1.5} />
-              </div>
-              <h1 className="font-display text-3xl text-white">¡Revisa tu email!</h1>
-              <p className="text-emerald-200/70">
-                Te enviamos un link a <strong className="text-amber-300">{email}</strong> para resetear tu contraseña.
+              <p className="text-center text-xs text-emerald-200/60 flex items-center justify-center gap-1.5">
+                <Phone className="w-3 h-3" />
+                0995549223
               </p>
             </div>
-          )}
+
+            {/* Organizador 2 - Daniel */}
+            <div className="bg-emerald-900/30 border border-emerald-700/50 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-emerald-200/60 uppercase tracking-wider">Organizador</p>
+                  <p className="font-display text-2xl text-white">DANIEL ANDRADE</p>
+                </div>
+              </div>
+              <p className="text-center text-sm text-emerald-200/70">
+                Contáctalo directamente
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-xs text-amber-200/90">
+            <p className="font-semibold text-amber-300 mb-1">💡 Antes de escribir:</p>
+            <p>Ten listo el <strong>email</strong> con el que te registraste. Los organizadores te enviarán un link para crear una nueva contraseña.</p>
+          </div>
 
           <a
             href="/login"
