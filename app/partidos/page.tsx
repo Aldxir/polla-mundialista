@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { requireAdmin } from '@/lib/auth/admin'
-import { Trophy, LogOut, Shield } from 'lucide-react'
+import { Trophy, LogOut, Shield, HelpCircle } from 'lucide-react'
 import PartidoCard from './PartidoCard'
+import BotonCompartir from './BotonCompartir'
 
 export default async function PartidosPage() {
   const supabase = await createClient()
@@ -14,14 +15,13 @@ export default async function PartidosPage() {
   // Ventana: desde ahora, hasta 7 días en el futuro
   const ahora = new Date()
   const enUnaSemana = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000)
-//                                              
 
   const { data: partidos } = await supabase
     .from('partidos')
     .select('*')
     .eq('estado', 'Pendiente')
-    .gt('fecha_partido', ahora.toISOString())       // solo futuros
-    .lt('fecha_partido', enUnaSemana.toISOString()) // dentro de 7 días
+    .gt('fecha_partido', ahora.toISOString())
+    .lt('fecha_partido', enUnaSemana.toISOString())
     .order('fecha_partido', { ascending: true })
 
   const { data: misPronosticos } = await supabase
@@ -51,25 +51,30 @@ export default async function PartidosPage() {
               <p className="text-emerald-200/70 text-sm">Hola, {nombreUsuario}</p>
             </div>
           </div>
-          <nav className="flex gap-2">
-  {isAdmin && (
-    <a href="/admin" className="flex items-center gap-1.5 px-3 py-2 bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 rounded-xl text-sm font-medium transition">
-      <Shield className="w-4 h-4" />
-      Admin
-    </a>
-  )}
-  <a href="/mis-pronosticos" className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
-    Mis pronósticos
-  </a>
-  <a href="/tabla" className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
-    Tabla
-  </a>
-  <form action="/auth/signout" method="post">
-    <button className="flex items-center gap-1.5 px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
-      <LogOut className="w-4 h-4" />
-    </button>
-  </form>
-</nav>
+
+          <nav className="flex gap-2 flex-wrap">
+            {isAdmin && (
+              <a href="/admin" className="flex items-center gap-1.5 px-3 py-2 bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 rounded-xl text-sm font-medium transition">
+                <Shield className="w-4 h-4" />
+                Admin
+              </a>
+            )}
+            <BotonCompartir />
+            <a href="/como-funciona" className="flex items-center gap-1.5 px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition" title="Reglas de la polla">
+              <HelpCircle className="w-4 h-4" />
+            </a>
+            <a href="/mis-pronosticos" className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
+              Mis pronósticos
+            </a>
+            <a href="/tabla" className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
+              Tabla
+            </a>
+            <form action="/auth/signout" method="post">
+              <button className="flex items-center gap-1.5 px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 border border-emerald-700/50 text-emerald-100 rounded-xl text-sm font-medium transition">
+                <LogOut className="w-4 h-4" />
+              </button>
+            </form>
+          </nav>
         </header>
 
         <div className="flex items-center justify-between text-xs text-emerald-200/60">

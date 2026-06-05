@@ -132,12 +132,23 @@ export default function LoginPage() {
             Inicia sesión con Google
           </button>
 
-          <p className="text-sm text-emerald-200/70 text-center pt-2 border-t border-emerald-800/50">
-            ¿No tienes una cuenta?{' '}
-            <a href="/registro" className="text-amber-300 hover:text-amber-200 font-medium transition">
-              Regístrate
-            </a>
-          </p>
+          <div className="space-y-3 pt-2 border-t border-emerald-800/50">
+  <p className="text-sm text-emerald-200/70 text-center">
+    ¿No tienes una cuenta?{' '}
+    <a href="/registro" className="text-amber-300 hover:text-amber-200 font-medium transition">
+      Regístrate
+    </a>
+  </p>
+  <p className="text-xs text-emerald-200/50 text-center">
+    ¿Es tu primera vez?{' '}
+    <a href="/como-funciona" className="text-amber-300 hover:text-amber-200 font-medium transition">
+      Mira cómo funciona la polla
+    </a>
+  </p>
+  <p className="text-xs text-emerald-200/40 text-center">
+      Polla Mundialista 2026 · Hecho por Aldair (AEIE) · 2026
+  </p>
+</div>
         </div>
       </div>
     </div>
