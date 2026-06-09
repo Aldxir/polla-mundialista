@@ -17,8 +17,10 @@ type Partido = {
 
 type Pronostico = {
   id: number
+  partido_id: number
   prediccion_goles_a: number
   prediccion_goles_b: number
+  [key: string]: unknown
 }
 
 export default function PartidoCard({

@@ -5,6 +5,7 @@ import { Trophy, LogOut, Shield, HelpCircle, Flame } from 'lucide-react'
 import PartidoCard from './PartidoCard'
 import BotonCompartir from './BotonCompartir'
 import CuentaRegresivaMundial from '@/components/CuentaRegresivaMundial'
+import PartidosTabs from './PartidosTabs'
 
 export default async function PartidosPage() {
   const supabase = await createClient()
@@ -14,14 +15,12 @@ export default async function PartidosPage() {
   const { isAdmin } = await requireAdmin()
 
   const ahora = new Date()
-  const enUnaSemana = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000)
 
   const { data: partidos } = await supabase
     .from('partidos')
     .select('*')
     .eq('estado', 'Pendiente')
     .gt('fecha_partido', ahora.toISOString())
-    .lt('fecha_partido', enUnaSemana.toISOString())
     .order('fecha_partido', { ascending: true })
 
   const { data: misPronosticos } = await supabase
@@ -34,9 +33,6 @@ export default async function PartidosPage() {
   )
 
   const nombreUsuario = user.user_metadata.full_name?.split(' ')[0] ?? user.email
-  const rangoHasta = enUnaSemana.toLocaleDateString('es-EC', {
-    day: 'numeric', month: 'long',
-  })
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -89,32 +85,13 @@ export default async function PartidosPage() {
         {/* Cuenta regresiva épica al Mundial */}
         <CuentaRegresivaMundial />
 
-        <div className="flex items-center justify-between text-xs text-emerald-200/60 pt-2">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-amber-400 pulse-live" />
-            Partidos hasta el {rangoHasta}
-          </span>
-          <span className="font-bold text-amber-300">{partidos?.length ?? 0} disponibles</span>
-        </div>
-
-        {!partidos || partidos.length === 0 ? (
-          <div className="bg-emerald-950/40 backdrop-blur border border-emerald-800/50 rounded-2xl p-12 text-center space-y-2">
-            <p className="text-emerald-200/70">No hay partidos para pronosticar esta semana.</p>
-            <p className="text-emerald-200/50 text-sm">Vuelve más adelante o revisa la tabla de posiciones.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {partidos.map(partido => (
-              <PartidoCard
-                key={partido.id}
-                partido={partido}
-                pronosticoExistente={pronosticosPorPartido.get(partido.id) ?? null}
-                userEmail={user.email!}
-                userName={user.user_metadata.full_name ?? user.email!}
-              />
-            ))}
-          </div>
-        )}
+        {/* Lista paginada por día */}
+        <PartidosTabs
+          partidos={partidos ?? []}
+          pronosticosPorPartido={Object.fromEntries(pronosticosPorPartido)}
+          userEmail={user.email!}
+          userName={user.user_metadata.full_name ?? user.email!}
+        />
 
         {/* Banderines decorativos abajo */}
         <div className="bunting-flags" />
