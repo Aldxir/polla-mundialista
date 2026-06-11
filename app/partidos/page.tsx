@@ -16,12 +16,11 @@ export default async function PartidosPage() {
 
   const ahora = new Date()
 
-  const { data: partidos } = await supabase
-    .from('partidos')
-    .select('*')
-    .eq('estado', 'Pendiente')
-    .gt('fecha_partido', ahora.toISOString())
-    .order('fecha_partido', { ascending: true })
+// DESPUÉS
+const { data: partidos } = await supabase
+  .from('partidos')
+  .select('*')
+  .order('fecha_partido', { ascending: true })
 
   const { data: misPronosticos } = await supabase
     .from('pronosticos')

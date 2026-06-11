@@ -13,14 +13,13 @@ type Partido = {
   equipo_b: string
   fase: string
   fecha_partido: string
+  estado: string
 }
 
 type Pronostico = {
   id: number
-  partido_id: number
   prediccion_goles_a: number
   prediccion_goles_b: number
-  [key: string]: unknown
 }
 
 export default function PartidoCard({
@@ -65,7 +64,6 @@ export default function PartidoCard({
       if (result.error) setMensaje({ tipo: 'error', texto: result.error })
       else {
         setMensaje({ tipo: 'ok', texto: '¡Pronóstico guardado!' })
-        // Pequeña celebración cuando guardas tu pronóstico
         setConfettiTrigger(t => t + 1)
       }
     })
@@ -89,14 +87,26 @@ export default function PartidoCard({
             <span className={`text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md border ${fase.bg} ${fase.text} ${fase.border}`}>
               {partido.fase}
             </span>
-            <span className={`text-xs font-bold px-2.5 py-1 rounded-md border flex items-center gap-1.5 ${
-              countdown.urgente
-                ? 'bg-red-500/15 text-red-300 border-red-500/30 pulse-live'
-                : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
-            }`}>
-              {countdown.urgente ? <Zap className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-              {countdown.texto}
-            </span>
+
+            {countdown.yaEmpezo ? (
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-md border flex items-center gap-1.5 ${
+                partido.estado === 'Finalizado'
+                  ? 'bg-slate-500/15 text-slate-300 border-slate-500/30'
+                  : 'bg-red-500/15 text-red-300 border-red-500/30 pulse-live'
+              }`}>
+                {partido.estado === 'Finalizado' ? '✅' : '🔴'}
+                {partido.estado === 'Finalizado' ? 'Finalizado' : 'En Curso'}
+              </span>
+            ) : (
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-md border flex items-center gap-1.5 ${
+                countdown.urgente
+                  ? 'bg-red-500/15 text-red-300 border-red-500/30 pulse-live'
+                  : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+              }`}>
+                {countdown.urgente ? <Zap className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                {countdown.texto}
+              </span>
+            )}
           </div>
           <span className="text-xs text-emerald-200/60">{fechaFormateada}</span>
         </div>
@@ -133,10 +143,20 @@ export default function PartidoCard({
 
         <div className="mt-5 flex items-center justify-between gap-3 flex-wrap">
           <div className="min-h-[24px] flex items-center">
-            {pronosticoExistente && !mensaje && (
-              <span className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-md flex items-center gap-1.5">
-                <Check className="w-3 h-3" />
-                Pronosticado · puedes modificar antes del partido
+            {!mensaje && (
+              <span className={`text-xs px-2.5 py-1 rounded-md border flex items-center gap-1.5 ${
+                countdown.yaEmpezo
+                  ? 'text-slate-400 bg-slate-500/10 border-slate-500/20'
+                  : pronosticoExistente
+                    ? 'text-amber-300 bg-amber-500/10 border-amber-500/20'
+                    : 'text-emerald-400/50 bg-transparent border-transparent'
+              }`}>
+                {countdown.yaEmpezo
+                  ? <>🔒 Pronósticos cerrados</>
+                  : pronosticoExistente
+                    ? <><Check className="w-3 h-3" /> Pronosticado · puedes modificar antes del partido</>
+                    : null
+                }
               </span>
             )}
             {mensaje && (
