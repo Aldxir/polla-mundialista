@@ -31,17 +31,14 @@ type Props = {
 }
 
 function fechaLocal(iso: string): string {
-  // Convierte ISO a fecha en Ecuador (UTC-5) para agrupar correctamente
   const d = new Date(iso)
-  // Ajuste manual a UTC-5
   const ec = new Date(d.getTime() - 5 * 60 * 60 * 1000)
-  return ec.toISOString().slice(0, 10) // "2026-06-09"
+  return ec.toISOString().slice(0, 10) // "2026-06-15"
 }
 
 function labelDia(fechaStr: string): string {
-  // fechaStr es "2026-06-09"
   const [y, m, d] = fechaStr.split('-').map(Number)
-  const fecha = new Date(y, m - 1, d) // fecha local sin timezone
+  const fecha = new Date(y, m - 1, d)
   return fecha.toLocaleDateString('es-EC', {
     weekday: 'long',
     day: 'numeric',
@@ -51,7 +48,6 @@ function labelDia(fechaStr: string): string {
 
 export default function PartidosTabs({ partidos, pronosticosPorPartido, userEmail, userName }: Props) {
 
-  // Agrupar partidos por día (Ecuador)
   const dias = useMemo(() => {
     const mapa = new Map<string, Partido[]>()
     for (const p of partidos) {
@@ -59,11 +55,28 @@ export default function PartidosTabs({ partidos, pronosticosPorPartido, userEmai
       if (!mapa.has(dia)) mapa.set(dia, [])
       mapa.get(dia)!.push(p)
     }
-    // Ordenar días cronológicamente
     return Array.from(mapa.entries()).sort(([a], [b]) => a.localeCompare(b))
   }, [partidos])
 
-  const [indiceDia, setIndiceDia] = useState(0)
+  // Calcular índice inicial: hoy en Ecuador, o próximo día con partidos
+  const indiceDiaInicial = useMemo(() => {
+    const ahora = new Date()
+    const ahoraEC = new Date(ahora.getTime() - 5 * 60 * 60 * 1000)
+    const hoyStr = ahoraEC.toISOString().slice(0, 10)
+
+    // Si hay partidos hoy, ir ahí
+    const idxHoy = dias.findIndex(([fecha]) => fecha === hoyStr)
+    if (idxHoy !== -1) return idxHoy
+
+    // Si no, ir al próximo día futuro con partidos
+    const idxFuturo = dias.findIndex(([fecha]) => fecha > hoyStr)
+    if (idxFuturo !== -1) return idxFuturo
+
+    // Si ya pasaron todos, mostrar el último
+    return Math.max(0, dias.length - 1)
+  }, [dias])
+
+  const [indiceDia, setIndiceDia] = useState(indiceDiaInicial)
 
   const diaActual = dias[indiceDia]
   const hayAnterior = indiceDia > 0
